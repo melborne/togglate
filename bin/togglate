@@ -1,3 +1,5 @@
 #!/usr/bin/env ruby
 
 require 'togglate'
+
+Togglate::CLI.start(ARGV)
