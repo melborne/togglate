@@ -3,16 +3,11 @@ require "togglate/block_wrapper"
 require "togglate/cli"
 
 module Togglate
-  def self.create(file,
-             wrapper:%w(```original ```),
-             toggle_code:true,
-             target:%($("pre[lang='original']")),
-             show_text:"*",
-             hide_text:"hide")
+  def self.create(file, opts={})
     text = File.read(file)
-    wrapped = BlockWrapper.new(text, wrapper:wrapper).run
+    wrapped = BlockWrapper.new(text, opts).run
     if toggle_code
-      code = toggle_code(target, show_text, hide_text)
+      code = toggle_code(target, opts)
       [wrapped, code].join("\n")
     else
       wrapped
