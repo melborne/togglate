@@ -10,8 +10,10 @@ module Togglate
     option :wrapper, type: :array
     def create(file)
       opts = options.inject({}) { |h, (k,v)| h[k.intern] = v; h } # symbolize keys
-      wrapper = options[:wrapper].map { |wr| wr.gsub(/\\n/, "\n") }
-      opts.update(wrapper:wrapper)
+      if wrapper = options[:wrapper]
+        wrapper.map! { |wr| wr.gsub(/\\n/, "\n") }
+        opts.update(wrapper:wrapper)
+      end
       puts Togglate.create(file, opts)
     end
   end
