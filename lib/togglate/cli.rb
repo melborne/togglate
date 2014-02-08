@@ -7,6 +7,7 @@ module Togglate
     option :target, default:%($("pre[lang='original']"))
     option :show_text, default:"*"
     option :hide_text, default:"hide"
+    option :wrapper, default:%w(```original ```)
     def create(file)
       opts = options.inject({}) { |h, (k,v)| h[k.intern] = v; h } # symbolize keys
       puts Togglate.create(file, opts)
