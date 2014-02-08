@@ -41,7 +41,7 @@ $('.toggleLink').click(
   });
 }
 var element = #{target};
-createToggleLinks(element, #{show_text}, #{hide_text});
+createToggleLinks(element, "#{show_text}", "#{hide_text}");
 </script>
 CODE
   end
