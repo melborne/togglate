@@ -6,8 +6,8 @@ module Togglate
   def self.create(file, opts={})
     text = File.read(file)
     wrapped = BlockWrapper.new(text, opts).run
-    if toggle_code
-      code = toggle_code(target, opts)
+    if opts[:toggle_code]
+      code = toggle_code(opts)
       [wrapped, code].join("\n")
     else
       wrapped
@@ -17,7 +17,7 @@ module Togglate
     exit
   end
 
-  def self.toggle_code(target, show_text, hide_text)
+  def self.toggle_code(target:%($("pre[lang='original']")), show_text:"*", hide_text:"hide", **opts)
     <<-"CODE"
 <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 <script>
