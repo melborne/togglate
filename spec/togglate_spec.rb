@@ -23,7 +23,7 @@ describe Togglate::BlockWrapper do
       text = "#title\n\n\ntext\n"
       wrapper = Togglate::BlockWrapper.new(text)
       chunks = wrapper.send(:chunk_by_space)
-      exp = "```original\n#title\n```\n\n\n```original\ntext\n```\n"
+      exp = "<translation here>\n```original\n#title\n```\n\n\n<translation here>\n```original\ntext\n```\n"
       expect(wrapper.send(:wrap_with, chunks)).to eq exp
     end
   end
