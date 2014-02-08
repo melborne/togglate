@@ -3,7 +3,7 @@ require "thor"
 module Togglate
   class CLI < Thor
     desc "create FILE", "Create a base file for translation from a original file"
-    option :toggle_code, aliases:'-t', type: :boolean
+    option :toggle_code, aliases:'-t', default:true
     option :target, type: :string
     option :show_text, aliases:'-s', type: :string
     option :hide_text, aliases:'-h', type: :string
