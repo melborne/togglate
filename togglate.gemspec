@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["kyoendo"]
   spec.email         = ["postagie@gmail.com"]
   spec.summary       = %q{Create base text for translation, in which original is togglable}
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/melborne/togglate"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)
