@@ -6,16 +6,16 @@ module Togglate
   def self.create(file, opts={})
     text = File.read(file)
     if [:hover, :comment].include?(opts[:method].intern)
-      opts.update(wrapper:%W([translation\ here]\n<!--original -->))
+      opts.update(wrapper:%W([translation\ here]\n\n<!--original -->))
     end
     wrapped = BlockWrapper.new(text, opts).run
     case opts[:method].intern
     when :toggle
       code = toggle_code(opts)
-      [wrapped, code].join("\n\n")
+      [wrapped, code].join("\n")
     when :hover, :comment
       code = hover_code(opts)
-      [wrapped, code].join("\n\n")
+      [wrapped, code].join("\n")
     else
       wrapped
     end
