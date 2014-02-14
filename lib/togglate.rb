@@ -5,10 +5,17 @@ require "togglate/cli"
 module Togglate
   def self.create(file, opts={})
     text = File.read(file)
+    if [:hover, :comment].include?(opts[:method].intern)
+      opts.update(wrapper:%W([translation\ here]\n<!--original -->))
+    end
     wrapped = BlockWrapper.new(text, opts).run
-    if opts[:toggle_code]
+    case opts[:method].intern
+    when :toggle
       code = toggle_code(opts)
-      [wrapped, code].join("\n")
+      [wrapped, code].join("\n\n")
+    when :hover, :comment
+      code = hover_code(opts)
+      [wrapped, code].join("\n\n")
     else
       wrapped
     end
@@ -37,6 +44,22 @@ $('.toggleLink').click(
 }
 var element = #{target};
 createToggleLinks(element, "#{show_text}", "#{hide_text}");
+</script>
+CODE
+  end
+
+  def self.hover_code(target:'original', **opts)
+    <<-"CODE"
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+<script>
+$(function() {
+  $("*").contents().filter(function() {
+    return this.nodeType==8 && this.nodeValue.match(/^#{target}/);
+  }).each(function(i, e) {
+    var tooltips = e.nodeValue.replace(/^#{target}\s*/, '');
+    $(this).prev().attr('title', tooltips);
+  });
+});
 </script>
 CODE
   end
