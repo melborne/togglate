@@ -56,7 +56,7 @@ $(function() {
   $("*").contents().filter(function() {
     return this.nodeType==8 && this.nodeValue.match(/^#{target}/);
   }).each(function(i, e) {
-    var tooltips = e.nodeValue.replace(/^#{target}\s*/, '');
+    var tooltips = e.nodeValue.replace(/^#{target}\s*[\\n\\r]|[\\n\\r]$/g, '');
     $(this).prev().attr('title', tooltips);
   });
 });
