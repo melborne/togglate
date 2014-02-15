@@ -52,9 +52,16 @@ describe Togglate::CLI do
       end
 
       it "not adds code to the output" do
-        Togglate::CLI.start(['create', 'README.md', '--code=false'])
+        Togglate::CLI.start(['create', 'README.md', '--code-embed=false'])
         expect($stdout.string).not_to match(/<script.*nodeType==8.*<\/script>/m)
         expect($stdout.string).not_to match(/<script.*createToggle.*<\/script>/m)
+      end
+    end
+
+    context "toggle_link_text option" do
+      it "sets texts for toggle link" do
+        Togglate::CLI.start(['create', 'README.md', '-m=toggle', '--toggle-link-text', 'showme', 'closeme'])
+        expect($stdout.string).to match(/<script.*showme.*<\/script>/m)
       end
     end
   end
