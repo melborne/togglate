@@ -5,23 +5,20 @@ require "togglate/cli"
 module Togglate
   def self.create(file, opts={})
     text = File.read(file)
-    if [:hover, :comment].include?(opts[:method].intern)
-      opts.update(wrapper:%W([translation\ here]\n\n<!--original -->))
-    end
     wrapped = BlockWrapper.new(text, opts).run
-    case opts[:method].intern
-    when :toggle
-      code = toggle_code(opts)
-      [wrapped, code].join("\n")
-    when :hover, :comment
-      code = hover_code(opts)
-      [wrapped, code].join("\n")
+    if opts[:code]
+      code = append_code(opts[:method], opts)
+      "#{wrapped}\n#{code}"
     else
       wrapped
     end
   rescue => e
     STDERR.puts "something go wrong. #{e}"
     exit
+  end
+
+  def self.append_code(method, opts)
+    send("#{method}_code", opts)
   end
 
   def self.toggle_code(target:%($("pre[lang='original']")), show_text:"*", hide_text:"hide", **opts)
