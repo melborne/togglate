@@ -2,7 +2,7 @@ class Togglate::BlockWrapper
   def initialize(text,
                  space_re:/^\s*$/,
                  chunk_exceptions:[/^```/],
-                 wrapper:%W([translation\ here]\n```original ```),
+                 wrapper:%W([translation\ here]\n\n<!--original -->)),
                  wrap_exceptions:[], **opts)
     @text = text
     @space_re = space_re
