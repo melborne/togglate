@@ -13,7 +13,7 @@ describe Togglate::CLI do
   end
 
   describe "#create" do
-    context "wrap_exceptions" do
+    context "wrap_exceptions option" do
       it "wraps sentences" do
         Togglate::CLI.start(['create', 'README.md'])
         expect($stdout.string).to match(/<!--original\n# Title\n-->/)
@@ -39,7 +39,23 @@ describe Togglate::CLI do
         expect($stdout.string).to match(/^\n```ruby.*```\n$/m)
       end
     end
-  end
 
-  
+    context "code and method option" do
+      it "adds hover code to the output" do
+        Togglate::CLI.start(['create', 'README.md'])
+        expect($stdout.string).to match(/<script.*nodeType==8.*<\/script>/m)
+      end
+
+      it "adds toggle code to the output" do
+        Togglate::CLI.start(['create', 'README.md', '--method=toggle'])
+        expect($stdout.string).to match(/<script.*createToggle.*<\/script>/m)
+      end
+
+      it "not adds code to the output" do
+        Togglate::CLI.start(['create', 'README.md', '--code=false'])
+        expect($stdout.string).not_to match(/<script.*nodeType==8.*<\/script>/m)
+        expect($stdout.string).not_to match(/<script.*createToggle.*<\/script>/m)
+      end
+    end
+  end
 end
