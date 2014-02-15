@@ -6,7 +6,7 @@ module Togglate
   def self.create(file, opts={})
     text = File.read(file)
     wrapped = BlockWrapper.new(text, opts).run
-    if opts[:code]
+    if opts[:code_embed]
       code = append_code(opts[:method], opts)
       "#{wrapped}\n#{code}"
     else
@@ -21,11 +21,11 @@ module Togglate
     send("#{method}_code", opts)
   end
 
-  def self.toggle_code(show_text:"*", hide_text:"hide", **opts)
+  def self.toggle_code(toggle_link_text:["*", "hide"], **opts)
     <<-"CODE"
 <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 <script>
-$(function(showText, hideText) {
+$(function() {
   $("*").contents().filter(function() {
     return this.nodeType==8 && this.nodeValue.match(/^original/);
   }).each(function(i, e) {
@@ -37,12 +37,12 @@ $(function(showText, hideText) {
 
   $('.toggleLink').click(
     function() {
-      if ($(this).text()==showText) {
+      if ($(this).text()=="#{toggle_link_text[0]}") {
        $(this).parent().parent().next('pre').slideDown(200);
-       $(this).text(hideText);
+       $(this).text("#{toggle_link_text[1]}");
       } else {
         $(this).parent().parent().next('pre').slideUp(200);
-        $(this).text(showText);
+        $(this).text("#{toggle_link_text[0]}");
       };
     });
 });
