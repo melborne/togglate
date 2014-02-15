@@ -1,6 +1,6 @@
 # Togglate
 
-TODO: Write a gem description
+  Togglate is a tool for creating a base text of translation, in which original texts are embeded in a form of comments.
 
 ## Installation
 
@@ -18,7 +18,7 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+See `togglate` command.
 
 ## Contributing
 
