@@ -21,26 +21,31 @@ module Togglate
     send("#{method}_code", opts)
   end
 
-  def self.toggle_code(target:%($("pre[lang='original']")), show_text:"*", hide_text:"hide", **opts)
+  def self.toggle_code(show_text:"*", hide_text:"hide", **opts)
     <<-"CODE"
 <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 <script>
-function createToggleLinks(target, showText, hideText) {
-var link = "<span><a href='#' onclick='javascript:return false;' class='toggleLink'>" + showText + "</a></span>";
-target.hide().prev().append(link);
-$('.toggleLink').click(
-  function() {
-    if ($(this).text()==showText) {
-     $(this).parent().parent().next(target).slideDown(200);
-     $(this).text(hideText);
-    } else {
-      $(this).parent().parent().next(target).slideUp(200);
-      $(this).text(showText);
-    };
+$(function(showText, hideText) {
+  $("*").contents().filter(function() {
+    return this.nodeType==8 && this.nodeValue.match(/^original/);
+  }).each(function(i, e) {
+    var tooltips = e.nodeValue.replace(/^original *[\n\r]|[\n\r]$/g, '');
+    var link = "<span><a href='#' onclick='javascript:return false;' class='toggleLink'>" + "*" + "</a></span>";
+    $(this).prev().append(link);
+    $(this).prev().after("<pre>"+ tooltips + "</pre>");
   });
-}
-var element = #{target};
-createToggleLinks(element, "#{show_text}", "#{hide_text}");
+
+  $('.toggleLink').click(
+    function() {
+      if ($(this).text()==showText) {
+       $(this).parent().parent().next('pre').slideDown(200);
+       $(this).text(hideText);
+      } else {
+        $(this).parent().parent().next('pre').slideUp(200);
+        $(this).text(showText);
+      };
+    });
+});
 </script>
 CODE
   end

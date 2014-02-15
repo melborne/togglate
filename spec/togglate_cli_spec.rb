@@ -48,7 +48,7 @@ describe Togglate::CLI do
 
       it "adds toggle code to the output" do
         Togglate::CLI.start(['create', 'README.md', '--method=toggle'])
-        expect($stdout.string).to match(/<script.*createToggle.*<\/script>/m)
+        expect($stdout.string).to match(/<script.*slideDown.*<\/script>/m)
       end
 
       it "not adds code to the output" do
