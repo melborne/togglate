@@ -1,12 +1,9 @@
 class Togglate::BlockWrapper
   def initialize(text,
-                 space_re:/^\s*$/,
-                 chunk_exceptions:[/^```/],
-                 wrapper:%W([translation\ here]\n\n<!--original -->)),
-                 wrap_exceptions:[], **opts)
+                 wrapper:%W([translation\ here]\n\n<!--original -->),
+                 wrap_exceptions:[],
+                 **opts)
     @text = text
-    @space_re = space_re
-    @chunk_exceptions = chunk_exceptions
     @wrapper = wrapper
     @wrap_exceptions = wrap_exceptions
   end
@@ -16,11 +13,11 @@ class Togglate::BlockWrapper
   end
 
   private
-  def chunk_by_space
+  def chunk_by_space(block_tags:[/^```/], space_re:/^\s*$/)
     in_block = false
     @text.each_line.chunk do |line|
-      in_block = !in_block if @chunk_exceptions.any? { |ex| line.match ex }
-      !line.match(@space_re).nil? && !in_block
+      in_block = !in_block if block_tags.any? { |ex| line.match ex }
+      !line.match(space_re).nil? && !in_block
     end
   end
 
