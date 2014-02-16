@@ -6,7 +6,7 @@ module Togglate
   def self.create(file, opts={})
     text = File.read(file)
     wrapped = BlockWrapper.new(text, opts).run
-    if opts[:code_embed]
+    if opts[:embed_code]
       code = append_code(opts[:method], opts)
       "#{wrapped}\n#{code}"
     else
@@ -21,18 +21,18 @@ module Togglate
     send("#{method}_code", opts)
   end
 
-  def self.toggle_code(toggle_link_text:["*", "hide"], **opts)
+  def self.toggle_code(name:'original', toggle_link_text:["*", "hide"], **opts)
     <<-"CODE"
 <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 <script>
 $(function() {
   $("*").contents().filter(function() {
-    return this.nodeType==8 && this.nodeValue.match(/^original/);
+    return this.nodeType==8 && this.nodeValue.match(/^#{name}/);
   }).each(function(i, e) {
-    var tooltips = e.nodeValue.replace(/^original *[\n\r]|[\n\r]$/g, '');
-    var link = "<span><a href='#' onclick='javascript:return false;' class='toggleLink'>" + "*" + "</a></span>";
+    var tooltips = e.nodeValue.replace(/^#{name} *[\\n\\r]|[\\n\\r]$/g, '');
+    var link = "<span><a href='#' onclick='javascript:return false;' class='toggleLink'>" + "#{toggle_link_text[0]}" + "</a></span>";
     $(this).prev().append(link);
-    $(this).prev().after("<pre>"+ tooltips + "</pre>");
+    $(this).prev().after("<pre style='display:none'>"+ tooltips + "</pre>");
   });
 
   $('.toggleLink').click(
@@ -50,15 +50,15 @@ $(function() {
 CODE
   end
 
-  def self.hover_code(target:'original', **opts)
+  def self.hover_code(name:'original', **opts)
     <<-"CODE"
 <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 <script>
 $(function() {
   $("*").contents().filter(function() {
-    return this.nodeType==8 && this.nodeValue.match(/^#{target}/);
+    return this.nodeType==8 && this.nodeValue.match(/^#{name}/);
   }).each(function(i, e) {
-    var tooltips = e.nodeValue.replace(/^#{target}\s*[\\n\\r]|[\\n\\r]$/g, '');
+    var tooltips = e.nodeValue.replace(/^#{name}\s*[\\n\\r]|[\\n\\r]$/g, '');
     $(this).prev().attr('title', tooltips);
   });
 });
