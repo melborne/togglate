@@ -30,12 +30,8 @@ describe Togglate::CLI do
       end
 
       it "wraps sentences except code blocks" do
-        Togglate::CLI.start(['create', 'README.md', '--wrap_exceptions', [/^\s{4}/]])
-        expect($stdout.string).to match(/^\n\s{4}% ruby title\.rb\n$/)
-      end
-
-      it "wraps sentences except gfm code blocks" do
-        Togglate::CLI.start(['create', 'README.md', '--wrap_exceptions', [/^```/]])
+        Togglate::CLI.start(['create', 'README.md', '--code-block'])
+        expect($stdout.string).to match(/^\n {4}% ruby title\.rb\n$/)
         expect($stdout.string).to match(/^\n```ruby.*```\n$/m)
       end
     end
@@ -52,7 +48,7 @@ describe Togglate::CLI do
       end
 
       it "not adds code to the output" do
-        Togglate::CLI.start(['create', 'README.md', '--code-embed=false'])
+        Togglate::CLI.start(['create', 'README.md', '--embed-code=false'])
         expect($stdout.string).not_to match(/<script.*nodeType==8.*<\/script>/m)
         expect($stdout.string).not_to match(/<script.*createToggle.*<\/script>/m)
       end
