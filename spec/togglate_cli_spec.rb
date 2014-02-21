@@ -61,4 +61,16 @@ describe Togglate::CLI do
       end
     end
   end
+
+  describe "#append_code" do
+    it "appends hover code to a file" do
+      Togglate::CLI.start(['append_code', 'README.md'])
+      expect($stdout.string).to match(/<script.*nodeType==8.*<\/script>/m)
+    end
+
+    it "appends toggle code to a file" do
+      Togglate::CLI.start(['append_code', 'README.md', '-m=toggle', '--toggle-link-text', 'showme', 'closeme'])
+      expect($stdout.string).to match(/<script.*showme.*<\/script>/m)
+    end
+  end
 end
