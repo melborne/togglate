@@ -1,3 +1,5 @@
+require "mymemory"
+
 require "togglate/version"
 require "togglate/block_wrapper"
 require "togglate/cli"

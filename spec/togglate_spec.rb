@@ -1,4 +1,5 @@
 require 'spec_helper'
+require "fakeweb"
 
 describe Togglate do
   it 'should have a version number' do
@@ -34,6 +35,39 @@ describe Togglate::BlockWrapper do
         wrapper = Togglate::BlockWrapper.new(@text, pretext:"-- translation --")
         chunks = wrapper.send(:chunk_by_space)
         exp = "-- translation --\n\n<!--original\n"
+        expect(wrapper.send(:wrap_with, chunks)).to match(exp)
+      end
+    end
+  end
+
+  describe "Embed results of MyMemory translation service" do
+    describe ".new with translate option" do
+      it "sets en-ja option when passed true" do
+        wrapper = Togglate::BlockWrapper.new('I need you.', translate:true)
+        opt = {to: :ja}
+        expect(wrapper.instance_variable_get('@translate')).to eq opt
+      end
+
+      it "sets passed options" do
+        opt = {from: :en, to: :it, email:true}
+        wrapper = Togglate::BlockWrapper.new('I need you.', translate:opt)
+        expect(wrapper.instance_variable_get('@translate')).to eq opt
+      end
+    end
+
+    describe "#wrap_with" do
+      before do
+        FakeWeb.clean_registry
+        body = File.read(File.join(source_root, 'translated_text.json'))
+        FakeWeb.register_uri(:get, %r(http://mymemory\.translated\.net), body:body)
+      end
+
+      it "sets translated sentences to pretext" do
+        text = "#Title\n\nProgramming is fun.\n"
+        opt = {from: :en, to: :ja}
+        wrapper = Togglate::BlockWrapper.new(text, translate:opt)
+        chunks = wrapper.send(:chunk_by_space)
+        exp = /プログラミングは楽しいです.*<!--original/m
         expect(wrapper.send(:wrap_with, chunks)).to match(exp)
       end
     end
