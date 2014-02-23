@@ -1,10 +1,12 @@
 class Togglate::BlockWrapper
   def initialize(text,
-                 wrapper:%W([translation\ here]\n\n<!--original -->),
+                 wrapper:%w(<!--original -->),
+                 pretext:"[translation here]",
                  wrap_exceptions:[],
                  **opts)
     @text = text
     @wrapper = wrapper
+    @pretext = pretext
     @wrap_exceptions = wrap_exceptions
   end
 
@@ -26,6 +28,7 @@ class Togglate::BlockWrapper
       if is_space || @wrap_exceptions.any? { |ex| lines[0].match ex }
         m.push *lines
       else
+        m.push @pretext, "\n\n" unless @pretext.nil? || @pretext.empty?
         m.push @wrapper[0], "\n", *lines, @wrapper[1], "\n"
       end
     end.join

@@ -7,10 +7,13 @@ describe Togglate do
 end
 
 describe Togglate::BlockWrapper do
+  before do
+    @text = "#title\n\n\ntext\n"
+  end
+
   describe "#chunk_by_space" do
     it "returns chunked array" do
-      text = "#title\n\n\ntext\n"
-      wrapper = Togglate::BlockWrapper.new(text)
+      wrapper = Togglate::BlockWrapper.new(@text)
       exp = [[false, ["#title\n"]],
              [true, ["\n", "\n"]],
              [false, ["text\n"]]]
@@ -20,11 +23,19 @@ describe Togglate::BlockWrapper do
 
   describe "#wrap_with" do
     it "returns wrapped text" do
-      text = "#title\n\n\ntext\n"
-      wrapper = Togglate::BlockWrapper.new(text)
+      wrapper = Togglate::BlockWrapper.new(@text)
       chunks = wrapper.send(:chunk_by_space)
       exp = "[translation here]\n\n<!--original\n#title\n-->\n\n\n[translation here]\n\n<!--original\ntext\n-->\n"
       expect(wrapper.send(:wrap_with, chunks)).to eq exp
+    end
+
+    context "optional pre-text" do
+      it "returns wrapped text with a custom text" do
+        wrapper = Togglate::BlockWrapper.new(@text, pretext:"-- translation --")
+        chunks = wrapper.send(:chunk_by_space)
+        exp = "-- translation --\n\n<!--original\n"
+        expect(wrapper.send(:wrap_with, chunks)).to match(exp)
+      end
     end
   end
 end
