@@ -1,3 +1,5 @@
+require "timeout"
+
 class Togglate::BlockWrapper
   def initialize(text,
                  wrapper:%w(<!--original -->),
@@ -9,6 +11,8 @@ class Togglate::BlockWrapper
     @pretext = pretext
     @wrap_exceptions = wrap_exceptions
     @translate = set_translate_opt(opts[:translate])
+    @timeout = opts.fetch(:timeout, 3)
+    @email = opts[:email]
   end
 
   def run
@@ -65,9 +69,14 @@ class Togglate::BlockWrapper
   using CoreExt
 
   def request_translation
+    Mymemory.config.email = @email if @email
     res = {}
     sentences_to_translate.thread_with do |k, text|
-      res[k] = ::Mymemory.translate(text, @translate)
+      begin
+        timeout(@timeout) { res[k] = ::Mymemory.translate(text, @translate) }
+      rescue Timeout::Error
+        res[k] = @pretext
+      end
     end
     res
   end
