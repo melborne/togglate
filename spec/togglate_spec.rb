@@ -1,5 +1,4 @@
 require 'spec_helper'
-require "fakeweb"
 
 describe Togglate do
   it 'should have a version number' do
@@ -56,12 +55,6 @@ describe Togglate::BlockWrapper do
     end
 
     describe "#wrap_with" do
-      before do
-        FakeWeb.clean_registry
-        body = File.read(File.join(source_root, 'translated_text.json'))
-        FakeWeb.register_uri(:get, %r(http://mymemory\.translated\.net), body:body)
-      end
-
       it "sets translated sentences to pretext" do
         text = "#Title\n\nProgramming is fun.\n"
         opt = {from: :en, to: :ja}
