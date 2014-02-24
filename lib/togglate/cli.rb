@@ -8,6 +8,7 @@ module Togglate
     option :toggle_link_text, type: :array, default:["*", "hide"]
     option :code_block, aliases:'-c', default:false, type: :boolean, desc:"Enable code blocks not to be wrapped"
     option :translate, aliases:'-t', type: :hash, default:{}, desc:"Embed machine translated text. ex.-t=to:ja"
+    option :email, desc:"Passing a valid email extends a limit of Mymemory anonymous usage from 100 to 1000 requests/day"
     def create(file)
       opts = symbolize_keys(options)
       opts.update(wrap_exceptions:[/^```/, /^ {4}/]) if opts[:code_block]
