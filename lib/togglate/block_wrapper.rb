@@ -25,17 +25,21 @@ class Togglate::BlockWrapper
   end
 
   def wrap_with(chunks)
-    chunks.inject([]) do |m, (is_space, lines)|
+    wrap_lines = chunks.inject([]) do |m, (is_space, lines)|
       if is_space || @wrap_exceptions.any? { |ex| lines[0].match ex }
         m.push *lines
       else
-        unless @pretext.nil? || @pretext.empty?
-          set_translated_text_to_pretext(lines) if @translate
-          m.push @pretext, "\n\n"
+        if @translate
+          hash_value = lines.join.hash
+          sentences_to_translate[hash_value] = lines.join
+          m.push hash_value
+        else
+          m.push @pretext
         end
-        m.push @wrapper[0], "\n", *lines, @wrapper[1], "\n"
+        m.push "\n\n", @wrapper[0], "\n", *lines, @wrapper[1], "\n"
       end
-    end.join
+    end
+    @translate ? hash_to_translation(wrap_lines).join : wrap_lines.join
   end
 
   def set_translate_opt(opt)
@@ -49,12 +53,28 @@ class Togglate::BlockWrapper
     end
   end
 
-  def set_translated_text_to_pretext(lines)
-    @original_pretext ||= @pretext.dup
-    @pretext = request_translated_text(lines.join, @translate)
+  def sentences_to_translate
+    @sentences_to_translate ||= {}
   end
 
-  def request_translated_text(text, option)
-    ::Mymemory.translate(text, option)
+  def hash_to_translation(lines)
+    translates = request_translation
+    lines.map do |line|
+      if res = translates[line]
+        res
+      else
+        line
+      end
+    end
+  end
+
+  using CoreExt
+
+  def request_translation
+    res = {}
+    sentences_to_translate.thread_with do |k, text|
+      res[k] = ::Mymemory.translate(text, @translate)
+    end
+    res
   end
 end
