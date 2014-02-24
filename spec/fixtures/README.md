@@ -1,6 +1,6 @@
 # Title
 
-Title is a tool.
+Programming is fun.
 
     % ruby title.rb
 
