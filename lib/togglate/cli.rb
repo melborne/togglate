@@ -7,7 +7,7 @@ module Togglate
     option :embed_code, aliases:'-e', default:true, type: :boolean, desc:"Enable code embeding to false"
     option :toggle_link_text, type: :array, default:["*", "hide"]
     option :code_block, aliases:'-c', default:false, type: :boolean, desc:"Enable code blocks not to be wrapped"
-    option :translate, aliases:'-t', type: :hash, default:{}, desc:"Embed machine translated text"
+    option :translate, aliases:'-t', type: :hash, default:{}, desc:"Embed machine translated text. ex.-t=to:ja"
     def create(file)
       opts = symbolize_keys(options)
       opts.update(wrap_exceptions:[/^```/, /^ {4}/]) if opts[:code_block]
