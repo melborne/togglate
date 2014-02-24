@@ -59,13 +59,7 @@ class Togglate::BlockWrapper
 
   def hash_to_translation(lines)
     translates = request_translation
-    lines.map do |line|
-      if res = translates[line]
-        res
-      else
-        line
-      end
-    end
+    lines.map { |line| translates[line] || line }
   end
 
   using CoreExt
