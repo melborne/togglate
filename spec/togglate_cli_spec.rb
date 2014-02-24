@@ -60,6 +60,13 @@ describe Togglate::CLI do
         expect($stdout.string).to match(/<script.*showme.*<\/script>/m)
       end
     end
+
+    context "translate option with Mymemory API" do
+      it "embeds translated text as its pretext" do
+        Togglate::CLI.start(['create', 'README.md', '--translate', 'to:ja'])
+        expect($stdout.string).to match(/プログラミングは楽しい/)
+      end
+    end
   end
 
   describe "#append_code" do
