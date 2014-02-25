@@ -11,7 +11,7 @@ class Togglate::BlockWrapper
     @pretext = pretext
     @wrap_exceptions = wrap_exceptions
     @translate = set_translate_opt(opts[:translate])
-    @timeout = opts.fetch(:timeout, 3)
+    @timeout = opts.fetch(:timeout, 5)
     @email = opts[:email]
   end
 
