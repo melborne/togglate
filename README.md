@@ -1,5 +1,7 @@
 # Togglate
 
+[![Build Status](https://travis-ci.org/melborne/togglate.png?branch=v0.1.0)](https://travis-ci.org/melborne/togglate)
+
   Togglate is a tool for creating a base text of translation, in which original texts are embeded in a form of comments.
 
 ## Installation
