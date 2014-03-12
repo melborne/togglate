@@ -67,6 +67,7 @@ class Togglate::BlockWrapper
   end
 
   using CoreExt
+  autoload :SizedString, "togglate/sized_string"
 
   def request_translation
     Mymemory.config.email = @email if @email

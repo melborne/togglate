@@ -6,6 +6,8 @@ require "togglate/block_wrapper"
 require "togglate/cli"
 
 module Togglate
+  autoload :SizedString, "togglate/sized_string"
+
   def self.create(file, opts={})
     text = File.read(file)
     wrapped = BlockWrapper.new(text, opts).run
