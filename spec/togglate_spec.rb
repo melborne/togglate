@@ -4,6 +4,19 @@ describe Togglate do
   it 'should have a version number' do
     Togglate::VERSION.should_not be_nil
   end
+
+  describe ".commentout" do
+    before do
+      @original = File.join(source_root, 'README.md')
+      @translated = File.join(source_root, 'README.ja.md')
+    end
+
+    it "extract comments from a text" do
+      comments, remains = Togglate.commentout(@translated)
+      expect(File.read(@original) == comments).to be_true
+    end
+  end
+
 end
 
 describe Togglate::BlockWrapper do

@@ -20,6 +20,19 @@ module Togglate
     exit
   end
 
+  def self.commentout(file)
+    text = File.read(file)
+    comment_key = 'original'
+
+    comments = []
+    comment_re = /\n?^<!--#{comment_key}\n(.*?)^-->\n?/m
+    remains = text.gsub(comment_re) { |m| comments << $1; '' }
+    return comments*"\n", remains
+  rescue => e
+    STDERR.puts "something go wrong. #{e}"
+    exit
+  end
+
   def self.append_code(method, opts)
     send("#{method}_code", opts)
   end
