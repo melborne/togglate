@@ -35,10 +35,12 @@ module Togglate
     end
 
     desc "commentout FILE", "Extract commented contents from a FILE"
+    option :remains, aliases:'-r', default:false, type: :boolean, desc:"Output remaining text after extraction of comments"
+    option :tag, aliases:'-t', default:'original', desc:"Specify comment tag name"
     def commentout(file)
       text = File.read(file)
-      comments, remains = Togglate.commentout(text)
-      puts comments
+      comments, remains = Togglate.commentout(text, tag:options['tag'])
+      puts options['remains'] ? remains : comments
     rescue => e
       STDERR.puts "something go wrong. #{e}"
       exit

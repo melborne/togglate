@@ -85,7 +85,15 @@ describe Togglate::CLI do
     it "extract comments from given file" do
       Togglate::CLI.start(['commentout', 'README.ja.md'])
       expect($stdout.string).to match(/# Title.*Programming/m)
-      expect($stdout.string).not_to match(/# タイトル/)
+      expect($stdout.string).not_to match(/# タイトル.*プログラミングは楽しい/m)
+    end
+
+    context "set remains option to true" do
+      it "outputs remaining text" do
+        Togglate::CLI.start(['commentout', 'README.ja.md', '--remains'])
+        expect($stdout.string).not_to match(/# Title.*Programming/m)
+        expect($stdout.string).to match(/# タイトル.*プログラミングは楽しい/m)
+      end
     end
   end
 end
