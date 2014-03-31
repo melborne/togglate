@@ -34,6 +34,16 @@ module Togglate
       exit
     end
 
+    desc "commentout FILE", "Extract commented contents from a FILE"
+    def commentout(file)
+      text = File.read(file)
+      comments, remains = Togglate.commentout(text)
+      puts comments
+    rescue => e
+      STDERR.puts "something go wrong. #{e}"
+      exit
+    end
+
     desc "version", "Show Togglate version"
     def version
       puts "Togglate #{Togglate::VERSION} (c) 2014 kyoendo"

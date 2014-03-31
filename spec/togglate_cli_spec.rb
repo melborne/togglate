@@ -80,4 +80,12 @@ describe Togglate::CLI do
       expect($stdout.string).to match(/<script.*showme.*<\/script>/m)
     end
   end
+
+  describe "#commentout" do
+    it "extract comments from given file" do
+      Togglate::CLI.start(['commentout', 'README.ja.md'])
+      expect($stdout.string).to match(/# Title.*Programming/m)
+      expect($stdout.string).not_to match(/# タイトル/)
+    end
+  end
 end
