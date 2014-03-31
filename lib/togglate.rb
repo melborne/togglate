@@ -6,30 +6,32 @@ require "togglate/block_wrapper"
 require "togglate/cli"
 
 module Togglate
-  def self.create(text, opts={})
-    wrapped = BlockWrapper.new(text, opts).run
-    if opts[:embed_code]
-      code = append_code(opts[:method], opts)
-      "#{wrapped}\n#{code}"
-    else
-      wrapped
+  class << self
+    def create(text, opts={})
+      wrapped = BlockWrapper.new(text, opts).run
+      if opts[:embed_code]
+        code = append_code(opts[:method], opts)
+        "#{wrapped}\n#{code}"
+      else
+        wrapped
+      end
     end
-  end
 
-  def self.commentout(text, tag:'original')
-    comments = []
-    comment_re = /\n?^<!--#{tag}\n(.*?)^-->\n?/m
+    def commentout(text, tag:'original')
+      comments = []
+      comment_re = /\n?^<!--#{tag}\n(.*?)^-->\n?/m
 
-    remains = text.gsub(comment_re) { |m| comments << $1; '' }
-    return comments*"\n", remains
-  end
+      remains = text.gsub(comment_re) { |m| comments << $1; '' }
+      return comments*"\n", remains
+    end
+    alias :comment_out :commentout
 
-  def self.append_code(method, opts)
-    send("#{method}_code", opts)
-  end
+    def append_code(method, opts)
+      send("#{method}_code", opts)
+    end
 
-  def self.toggle_code(name:'original', toggle_link_text:["*", "hide"], **opts)
-    <<-"CODE"
+    def toggle_code(name:'original', toggle_link_text:["*", "hide"], **opts)
+      <<-"CODE"
 <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 <script>
 $(function() {
@@ -55,10 +57,10 @@ $(function() {
 });
 </script>
 CODE
-  end
+    end
 
-  def self.hover_code(name:'original', **opts)
-    <<-"CODE"
+    def hover_code(name:'original', **opts)
+      <<-"CODE"
 <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 <script>
 $(function() {
@@ -71,5 +73,6 @@ $(function() {
 });
 </script>
 CODE
+    end
   end
 end
