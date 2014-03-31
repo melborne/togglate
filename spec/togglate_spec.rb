@@ -7,16 +7,18 @@ describe Togglate do
 
   describe ".commentout" do
     before do
-      @original = File.join(source_root, 'README.md')
-      @translated = File.join(source_root, 'README.ja.md')
+      @original, @translated = begin
+        %w(README.md README.ja.md).map do |f|
+          File.read File.join(source_root, f)
+        end
+      end
     end
 
     it "extract comments from a text" do
       comments, remains = Togglate.commentout(@translated)
-      expect(File.read(@original) == comments).to be_true
+      expect(@original == comments).to be_true
     end
   end
-
 end
 
 describe Togglate::BlockWrapper do

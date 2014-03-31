@@ -10,10 +10,14 @@ module Togglate
     option :translate, aliases:'-t', type: :hash, default:{}, desc:"Embed machine translated text. ex.-t=to:ja"
     option :email, desc:"Passing a valid email extends a limit of Mymemory anonymous usage from 100 to 1000 requests/day"
     def create(file)
+      text = File.read(file)
       opts = symbolize_keys(options)
       opts.update(wrap_exceptions:[/^```/, /^ {4}/]) if opts[:code_block]
       opts.update(translate:nil) if opts[:translate].empty?
-      puts Togglate.create(file, opts)
+      puts Togglate.create(text, opts)
+    rescue => e
+      STDERR.puts "something go wrong. #{e}"
+      exit
     end
 
     desc "append_code FILE", "Append a hover or toggle code to a FILE"

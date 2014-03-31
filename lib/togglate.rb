@@ -6,8 +6,7 @@ require "togglate/block_wrapper"
 require "togglate/cli"
 
 module Togglate
-  def self.create(file, opts={})
-    text = File.read(file)
+  def self.create(text, opts={})
     wrapped = BlockWrapper.new(text, opts).run
     if opts[:embed_code]
       code = append_code(opts[:method], opts)
@@ -15,22 +14,14 @@ module Togglate
     else
       wrapped
     end
-  rescue => e
-    STDERR.puts "something go wrong. #{e}"
-    exit
   end
 
-  def self.commentout(file)
-    text = File.read(file)
-    comment_key = 'original'
-
+  def self.commentout(text, tag:'original')
     comments = []
-    comment_re = /\n?^<!--#{comment_key}\n(.*?)^-->\n?/m
+    comment_re = /\n?^<!--#{tag}\n(.*?)^-->\n?/m
+
     remains = text.gsub(comment_re) { |m| comments << $1; '' }
     return comments*"\n", remains
-  rescue => e
-    STDERR.puts "something go wrong. #{e}"
-    exit
   end
 
   def self.append_code(method, opts)
