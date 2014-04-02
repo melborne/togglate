@@ -20,7 +20,7 @@ class Togglate::BlockWrapper
   end
 
   private
-  def chunk_by_space(block_tags:[/^```/], space_re:/^\s*$/)
+  def chunk_by_space(block_tags:[/^```/, /^{%/], space_re:/^\s*$/)
     in_block = false
     @text.each_line.chunk do |line|
       in_block = !in_block if block_tags.any? { |ex| line.match ex }

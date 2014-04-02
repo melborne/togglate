@@ -34,6 +34,34 @@ describe Togglate::BlockWrapper do
              [false, ["text\n"]]]
       expect(wrapper.send(:chunk_by_space).to_a).to eq exp
     end
+
+    context "with liquid tags" do
+      it "wraps liquid tag blocks as target blocks" do
+        text =<<-EOS
+#title
+
+text
+
+{% highlight bash %}
+bash code
+
+here
+{% endhighlight %}
+EOS
+
+        wrapper = Togglate::BlockWrapper.new(text)
+        exp = [[false, ["#title\n"]],
+               [true,  ["\n"]],
+               [false, ["text\n"]],
+               [true,  ["\n"]],
+               [false, ["{% highlight bash %}\n",
+                        "bash code\n",
+                        "\n",
+                        "here\n",
+                        "{% endhighlight %}\n"]]]
+        expect(wrapper.send(:chunk_by_space).to_a).to eq exp
+      end
+    end
   end
 
   describe "#wrap_with" do

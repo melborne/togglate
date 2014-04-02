@@ -12,7 +12,8 @@ module Togglate
     def create(file)
       text = File.read(file)
       opts = symbolize_keys(options)
-      opts.update(wrap_exceptions:[/^```/, /^ {4}/]) if opts[:code_block]
+      blocks = [/^```/, /^ {4}/, /^{%/]
+      opts.update(wrap_exceptions:blocks) if opts[:code_block]
       opts.update(translate:nil) if opts[:translate].empty?
       puts Togglate.create(text, opts)
     rescue => e
