@@ -5,13 +5,13 @@ describe Togglate::BlockWrapper do
     @text = "#title\n\n\ntext\n"
   end
 
-  describe "#chunk_by_space" do
+  describe "#chunk_by_blank_line" do
     it "returns chunked array" do
       wrapper = Togglate::BlockWrapper.new(@text)
       exp = [[false, ["#title\n"]],
              [true, ["\n", "\n"]],
              [false, ["text\n"]]]
-      expect(wrapper.send(:chunk_by_space).to_a).to eq exp
+      expect(wrapper.send(:chunk_by_blank_line).to_a).to eq exp
     end
 
     context "with liquid tags" do
@@ -38,7 +38,7 @@ EOS
                         "\n",
                         "here\n",
                         "{% endhighlight %}\n"]]]
-        expect(wrapper.send(:chunk_by_space).to_a).to eq exp
+        expect(wrapper.send(:chunk_by_blank_line).to_a).to eq exp
       end
     end
   end
@@ -46,7 +46,7 @@ EOS
   describe "#wrap_with" do
     it "returns wrapped text" do
       wrapper = Togglate::BlockWrapper.new(@text)
-      chunks = wrapper.send(:chunk_by_space)
+      chunks = wrapper.send(:chunk_by_blank_line)
       exp = "[translation here]\n\n<!--original\n#title\n-->\n\n\n[translation here]\n\n<!--original\ntext\n-->\n"
       expect(wrapper.send(:wrap_with, chunks)).to eq exp
     end
@@ -54,7 +54,7 @@ EOS
     context "optional pre-text" do
       it "returns wrapped text with a custom text" do
         wrapper = Togglate::BlockWrapper.new(@text, pretext:"-- translation --")
-        chunks = wrapper.send(:chunk_by_space)
+        chunks = wrapper.send(:chunk_by_blank_line)
         exp = "-- translation --\n\n<!--original\n"
         expect(wrapper.send(:wrap_with, chunks)).to match(exp)
       end
@@ -81,7 +81,7 @@ EOS
         text = "#Title\n\nProgramming is fun.\n"
         opt = {from: :en, to: :ja}
         wrapper = Togglate::BlockWrapper.new(text, translate:opt)
-        chunks = wrapper.send(:chunk_by_space)
+        chunks = wrapper.send(:chunk_by_blank_line)
         exp = /プログラミングは楽しいです.*<!--original/m
         expect(wrapper.send(:wrap_with, chunks)).to match(exp)
       end

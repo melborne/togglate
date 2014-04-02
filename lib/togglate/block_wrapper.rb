@@ -16,21 +16,25 @@ class Togglate::BlockWrapper
   end
 
   def run
-    wrap_with chunk_by_space
+    wrap_with chunk_by_blank_line
   end
 
   private
-  def chunk_by_space(block_tags:[/^```/, /^{%/], space_re:/^\s*$/)
+  def chunk_by_blank_line(block_tags:[/^```/, /^{%/])
     in_block = false
     @text.each_line.chunk do |line|
       in_block = !in_block if block_tags.any? { |ex| line.match ex }
-      !line.match(space_re).nil? && !in_block
+      blank_line?(line) && !in_block
     end
   end
 
+  def blank_line?(line, blank_line_re:/^\s*$/)
+    !line.match(blank_line_re).nil?
+  end
+
   def wrap_with(chunks)
-    wrap_lines = chunks.inject([]) do |m, (is_space, lines)|
-      if is_space || @wrap_exceptions.any? { |ex| lines[0].match ex }
+    wrap_lines = chunks.inject([]) do |m, (is_blank_line, lines)|
+      if is_blank_line || @wrap_exceptions.any? { |ex| lines[0].match ex }
         m.push *lines
       else
         if @translate
