@@ -1,7 +1,6 @@
 require "mymemory"
 
 require "togglate/version"
-require "togglate/core_ext"
 require "togglate/block_wrapper"
 require "togglate/cli"
 

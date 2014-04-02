@@ -66,12 +66,10 @@ class Togglate::BlockWrapper
     lines.map { |line| translates[line] || line }
   end
 
-  using CoreExt
-
   def request_translation
     Mymemory.config.email = @email if @email
     res = {}
-    sentences_to_translate.thread_with do |k, text|
+    thread_with(sentences_to_translate) do |k, text|
       begin
         timeout(@timeout) { res[k] = ::Mymemory.translate(text, @translate) }
       rescue Timeout::Error
@@ -79,5 +77,15 @@ class Togglate::BlockWrapper
       end
     end
     res
+  end
+
+  def thread_with(hash)
+    mem = []
+    hash.map do |*item|
+      Thread.new(*item) do |*_item|
+        mem << yield(*_item)
+      end
+    end.each(&:join)
+    mem
   end
 end
