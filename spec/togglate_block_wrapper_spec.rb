@@ -5,13 +5,13 @@ describe Togglate::BlockWrapper do
     @text = "#title\n\n\ntext\n"
   end
 
-  describe "#chunk_by_blank_line" do
+  describe "#build_chunks" do
     it "returns chunked array" do
       wrapper = Togglate::BlockWrapper.new(@text)
       exp = [[false, ["#title\n"]],
              [true, ["\n", "\n"]],
              [false, ["text\n"]]]
-      expect(wrapper.send(:chunk_by_blank_line).to_a).to eq exp
+      expect(wrapper.send(:build_chunks).to_a).to eq exp
     end
 
     context "with liquid tags" do
@@ -38,25 +38,25 @@ EOS
                         "\n",
                         "here\n",
                         "{% endhighlight %}\n"]]]
-        expect(wrapper.send(:chunk_by_blank_line).to_a).to eq exp
+        expect(wrapper.send(:build_chunks).to_a).to eq exp
       end
     end
   end
 
-  describe "#wrap_with" do
+  describe "#wrap_chunks" do
     it "returns wrapped text" do
       wrapper = Togglate::BlockWrapper.new(@text)
-      chunks = wrapper.send(:chunk_by_blank_line)
+      chunks = wrapper.send(:build_chunks)
       exp = "[translation here]\n\n<!--original\n#title\n-->\n\n\n[translation here]\n\n<!--original\ntext\n-->\n"
-      expect(wrapper.send(:wrap_with, chunks)).to eq exp
+      expect(wrapper.send(:wrap_chunks, chunks)).to eq exp
     end
 
     context "optional pre-text" do
       it "returns wrapped text with a custom text" do
         wrapper = Togglate::BlockWrapper.new(@text, pretext:"-- translation --")
-        chunks = wrapper.send(:chunk_by_blank_line)
+        chunks = wrapper.send(:build_chunks)
         exp = "-- translation --\n\n<!--original\n"
-        expect(wrapper.send(:wrap_with, chunks)).to match(exp)
+        expect(wrapper.send(:wrap_chunks, chunks)).to match(exp)
       end
     end
   end
@@ -76,14 +76,14 @@ EOS
       end
     end
 
-    describe "#wrap_with" do
+    describe "#wrap_chunks" do
       it "sets translated sentences to pretext" do
         text = "#Title\n\nProgramming is fun.\n"
         opt = {from: :en, to: :ja}
         wrapper = Togglate::BlockWrapper.new(text, translate:opt)
-        chunks = wrapper.send(:chunk_by_blank_line)
+        chunks = wrapper.send(:build_chunks)
         exp = /プログラミングは楽しいです.*<!--original/m
-        expect(wrapper.send(:wrap_with, chunks)).to match(exp)
+        expect(wrapper.send(:wrap_chunks, chunks)).to match(exp)
       end
     end
   end

@@ -16,11 +16,11 @@ class Togglate::BlockWrapper
   end
 
   def run
-    wrap_with chunk_by_blank_line
+    wrap_chunks build_chunks
   end
 
   private
-  def chunk_by_blank_line(block_tags:[/^```/, /^{%/])
+  def build_chunks(block_tags:[/^```/, /^{%/])
     in_block = false
     @text.each_line.chunk do |line|
       in_block = !in_block if block_tags.any? { |ex| line.match ex }
@@ -32,22 +32,26 @@ class Togglate::BlockWrapper
     !line.match(blank_line_re).nil?
   end
 
-  def wrap_with(chunks)
+  def wrap_chunks(chunks)
     wrap_lines = chunks.inject([]) do |m, (is_blank_line, lines)|
       if is_blank_line || @wrap_exceptions.any? { |ex| lines[0].match ex }
         m.push *lines
       else
-        if @translate
-          hash_value = lines.join.hash
-          sentences_to_translate[hash_value] = lines.join
-          m.push hash_value
-        else
-          m.push @pretext
-        end
+        m.push pretext(lines)
         m.push "\n\n", @wrapper[0], "\n", *lines, @wrapper[1], "\n"
       end
     end
     @translate ? hash_to_translation(wrap_lines).join : wrap_lines.join
+  end
+
+  def pretext(lines)
+    if @translate
+      hash_value = lines.join.hash
+      sentences_to_translate[hash_value] = lines.join
+      hash_value
+    else
+      @pretext
+    end
   end
 
   def set_translate_opt(opt)
