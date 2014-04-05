@@ -40,10 +40,11 @@ EOS
                         "{% endhighlight %}\n"]]]
         expect(wrapper.send(:build_chunks).to_a).to eq exp
       end
+    end
 
-      context "with fenced code blocks" do
-        it "wraps fenced code blocks as target blocks" do
-          text = <<-EOS
+    context "with fenced code blocks" do
+      it "wraps fenced code blocks as target blocks" do
+        text = <<-EOS
 # title
 
 text
@@ -54,16 +55,15 @@ puts 'Hello'
 p :World
 ```
 EOS
-          wrapper = Togglate::BlockWrapper.new(text)
-          exp = [
-            [false, ["# title\n"]],
-            [true,  ["\n"]],
-            [false, ["text\n"]],
-            [true,  ["\n"]],
-            [false, ["``` ruby\n", "puts 'Hello'\n", "\n", "p :World\n", "```\n"]]
-          ]
-          expect(wrapper.send(:build_chunks).to_a).to eq exp
-        end
+        wrapper = Togglate::BlockWrapper.new(text)
+        exp = [
+          [false, ["# title\n"]],
+          [true,  ["\n"]],
+          [false, ["text\n"]],
+          [true,  ["\n"]],
+          [false, ["``` ruby\n", "puts 'Hello'\n", "\n", "p :World\n", "```\n"]]
+        ]
+        expect(wrapper.send(:build_chunks).to_a).to eq exp
       end
     end
   end
