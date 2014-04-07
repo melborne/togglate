@@ -22,9 +22,14 @@ class Togglate::BlockWrapper
   private
   def build_chunks
     in_block = false
+    in_4spb = false
     @text.each_line.chunk do |line|
       in_block = in_block?(line, in_block)
-      blank_line?(line) && !in_block
+      prev4spb = in_4spb
+      in_4spb = in_4space_block?(line, in_4spb, in_block)
+
+      ( blank_line?(line) ||
+        true_to_false?(prev4spb, in_4spb) ) && !in_block && !in_4spb
     end
   end
 
@@ -32,9 +37,25 @@ class Togglate::BlockWrapper
     !line.match(blank_line_re).nil?
   end
 
+  def true_to_false?(prev, curr)
+    # this captures the in-out state transition on 4 space block.
+    # then handle it as blank line.
+    [prev, curr] == [true, false]
+  end
+
   def in_block?(line, in_block, block_tags:[/^```/, /^{%/])
     return !in_block if block_tags.any? { |ex| line.match ex }
     in_block
+  end
+
+  def in_4space_block?(line, status, in_block)
+    return false if in_block
+    if !status && line.match(/^\s{4,}\S/) ||
+        status && line.match(/^\s{,3}\S/)
+      !status
+    else
+      status
+    end
   end
 
   def wrap_chunks(chunks)
