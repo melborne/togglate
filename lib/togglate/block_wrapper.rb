@@ -20,16 +20,21 @@ class Togglate::BlockWrapper
   end
 
   private
-  def build_chunks(block_tags:[/^```/, /^{%/])
+  def build_chunks
     in_block = false
     @text.each_line.chunk do |line|
-      in_block = !in_block if block_tags.any? { |ex| line.match ex }
+      in_block = in_block?(line, in_block)
       blank_line?(line) && !in_block
     end
   end
 
   def blank_line?(line, blank_line_re:/^\s*$/)
     !line.match(blank_line_re).nil?
+  end
+
+  def in_block?(line, in_block, block_tags:[/^```/, /^{%/])
+    return !in_block if block_tags.any? { |ex| line.match ex }
+    in_block
   end
 
   def wrap_chunks(chunks)
