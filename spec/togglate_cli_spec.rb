@@ -21,7 +21,7 @@ describe Togglate::CLI do
 
       it "wraps code blocks" do
         Togglate::CLI.start(['create', 'README.md'])
-        expect($stdout.string).to match(/<!--original\n\s{4}% ruby title\.rb\n-->/)
+        expect($stdout.string).to match(/<!--original\n\s{4}% ruby title\.rb\n\n-->/)
       end
 
       it "wraps gfm code blocks" do
@@ -29,10 +29,12 @@ describe Togglate::CLI do
         expect($stdout.string).to match(/<!--original.*```ruby.*```\n-->/m)
       end
 
-      it "wraps sentences except code blocks" do
-        Togglate::CLI.start(['create', 'README.md', '--code-block'])
-        expect($stdout.string).to match(/^\n {4}% ruby title\.rb\n$/)
-        expect($stdout.string).to match(/^\n```ruby.*```\n$/m)
+      context "set code-block option to true" do
+        it "not wraps fenced and indented code blocks" do
+          Togglate::CLI.start(['create', 'README.md', '--code-block'])
+          expect($stdout.string).to match(/^\n {4}% ruby title\.rb\n$/)
+          expect($stdout.string).to match(/^\n```ruby.*```\n$/m)
+        end
       end
     end
 

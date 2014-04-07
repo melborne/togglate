@@ -12,7 +12,7 @@ module Togglate
     def create(file)
       text = File.read(file)
       opts = symbolize_keys(options)
-      blocks = [/^```/, /^ {4}/, /^{%/]
+      blocks = [/^```/, /^{%/]
       opts.update(wrap_exceptions:blocks) if opts[:code_block]
       opts.update(translate:nil) if opts[:translate].empty?
       puts Togglate.create(text, opts)

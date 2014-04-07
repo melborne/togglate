@@ -16,6 +16,12 @@ Programming is fun.
     % ruby title.rb
 -->
 
+ほんとに楽しい。
+
+<!--original
+Really fun.
+-->
+
 ```ruby
 def hello
   puts :hello
