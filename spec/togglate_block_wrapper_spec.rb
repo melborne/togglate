@@ -67,7 +67,7 @@ EOS
       end
     end
 
-    context "with 4 spaces code blocks" do
+    context "with 4 indented code blocks" do
       it "wraps them as target blocks" do
         text =<<-EOS
 #title

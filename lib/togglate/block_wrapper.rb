@@ -13,6 +13,7 @@ class Togglate::BlockWrapper
     @translate = set_translate_opt(opts[:translate])
     @timeout = opts.fetch(:timeout, 5)
     @email = opts[:email]
+    @indent_re = /^\s{4,}\S/
   end
 
   def run
@@ -22,14 +23,15 @@ class Togglate::BlockWrapper
   private
   def build_chunks
     in_block = false
-    in_4spb = false
+    in_indent = false
     @text.each_line.chunk do |line|
       in_block = in_block?(line, in_block)
-      prev4spb = in_4spb
-      in_4spb = in_4space_block?(line, in_4spb, in_block)
+      prev_indent = in_indent
+      in_indent = in_indented_block?(line, in_indent, in_block)
 
       ( blank_line?(line) ||
-        true_to_false?(prev4spb, in_4spb) ) && !in_block && !in_4spb
+        true_to_false?(prev_indent, in_indent) ) &&
+        !in_block && !in_indent
     end
   end
 
@@ -48,9 +50,9 @@ class Togglate::BlockWrapper
     in_block
   end
 
-  def in_4space_block?(line, status, in_block)
+  def in_indented_block?(line, status, in_block)
     return false if in_block
-    if !status && line.match(/^\s{4,}\S/) ||
+    if !status && line.match(@indent_re) ||
         status && line.match(/^\s{,3}\S/)
       !status
     else
@@ -60,7 +62,7 @@ class Togglate::BlockWrapper
 
   def wrap_chunks(chunks)
     wrap_lines = chunks.inject([]) do |m, (is_blank_line, lines)|
-      if is_blank_line || @wrap_exceptions.any? { |ex| lines[0].match ex }
+      if is_blank_line || exception_block?(lines.first)
         m.push *lines
       else
         m.push pretext(lines)
@@ -68,6 +70,14 @@ class Togglate::BlockWrapper
       end
     end
     @translate ? hash_to_translation(wrap_lines).join : wrap_lines.join
+  end
+
+  def exception_block?(line)
+    if @wrap_exceptions.empty?
+      false
+    else
+      (@wrap_exceptions + [@indent_re]).any? { |ex| line.match ex }
+    end
   end
 
   def pretext(lines)
