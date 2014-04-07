@@ -29,9 +29,15 @@ class Togglate::BlockWrapper
       prev_indent = in_indent
       in_indent = in_indented_block?(line, in_indent, in_block)
 
-      ( blank_line?(line) ||
-        true_to_false?(prev_indent, in_indent) ) &&
-        !in_block && !in_indent
+      if true_to_false?(prev_indent, in_indent)
+        if blank_line?(line)
+         true
+        else
+        :alone  # line just after 4 indent block marked :alone
+        end
+      else
+        blank_line?(line) && !in_block && !in_indent
+      end
     end
   end
 
@@ -40,8 +46,7 @@ class Togglate::BlockWrapper
   end
 
   def true_to_false?(prev, curr)
-    # this captures the in-out state transition on 4 space block.
-    # then handle it as blank line.
+    # this captures the in-out state transition on 4 indent block.
     [prev, curr] == [true, false]
   end
 
@@ -61,15 +66,41 @@ class Togglate::BlockWrapper
   end
 
   def wrap_chunks(chunks)
+    # a line just after 4 indent block(marked :alone) is
+    # saved to local var 'reserve', then it is merged with
+    # next lines or wrapped solely depend the type of next lines
+    reserve = nil
     wrap_lines = chunks.inject([]) do |m, (is_blank_line, lines)|
+      next m.tap { reserve = lines } if is_blank_line == :alone
+
       if is_blank_line || exception_block?(lines.first)
+        if reserve
+          m.push "\n"
+          m.push *wrapped_block(reserve)
+        end
         m.push *lines
       else
-        m.push pretext(lines)
-        m.push "\n\n", @wrapper[0], "\n", *lines, @wrapper[1], "\n"
+        if reserve
+          m.push "\n"
+          lines = reserve + lines
+        end
+        m.push *wrapped_block(lines)
       end
+      m.tap { reserve = nil }
     end
     @translate ? hash_to_translation(wrap_lines).join : wrap_lines.join
+  end
+
+  def wrapped_block(contents)
+    [
+      pretext(contents),
+      "\n\n",
+      @wrapper[0],
+      "\n",
+      *contents,
+      @wrapper[1],
+      "\n"
+    ]
   end
 
   def exception_block?(line)
