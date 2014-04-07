@@ -90,17 +90,37 @@ EOS
                         "\n",
                         "    end tell\n",
                         "\n"]],
-                [true,  ["  line\n"]]]
+               [:alone,  ["  line\n"]]]
         expect(wrapper.send(:build_chunks).to_a).to eq exp
       end
     end
   end
 
   describe "#wrap_chunks" do
+    before do
+      @text =<<-EOS
+#title
+
+text
+EOS
+    end
+
     it "returns wrapped text" do
       wrapper = Togglate::BlockWrapper.new(@text)
       chunks = wrapper.send(:build_chunks)
-      exp = "[translation here]\n\n<!--original\n#title\n-->\n\n\n[translation here]\n\n<!--original\ntext\n-->\n"
+      exp =<<-EOS
+[translation here]
+
+<!--original
+#title
+-->
+
+[translation here]
+
+<!--original
+text
+-->
+EOS
       expect(wrapper.send(:wrap_chunks, chunks)).to eq exp
     end
 
@@ -110,6 +130,84 @@ EOS
         chunks = wrapper.send(:build_chunks)
         exp = "-- translation --\n\n<!--original\n"
         expect(wrapper.send(:wrap_chunks, chunks)).to match(exp)
+      end
+    end
+
+    context "text has 4 indented code blocks" do
+      it "wraps sentences after the code blocks correctly" do
+        text =<<-EOS
+#title
+
+    % echo hello
+
+line
+line2
+EOS
+        wrapper = Togglate::BlockWrapper.new(text)
+        chunks = wrapper.send(:build_chunks)
+        exp =<<-EOS
+[translation here]
+
+<!--original
+#title
+-->
+
+[translation here]
+
+<!--original
+    % echo hello
+
+-->
+
+[translation here]
+
+<!--original
+line
+line2
+-->
+EOS
+        expect(wrapper.send(:wrap_chunks, chunks)).to eq exp
+      end
+
+      it "wraps sentences after the code blocks correctly 2" do
+        text =<<-EOS
+#title
+
+    % echo hello
+
+line
+
+line2
+EOS
+        wrapper = Togglate::BlockWrapper.new(text)
+        chunks = wrapper.send(:build_chunks)
+        exp =<<-EOS
+[translation here]
+
+<!--original
+#title
+-->
+
+[translation here]
+
+<!--original
+    % echo hello
+
+-->
+
+[translation here]
+
+<!--original
+line
+-->
+
+[translation here]
+
+<!--original
+line2
+-->
+EOS
+        expect(wrapper.send(:wrap_chunks, chunks)).to eq exp
       end
     end
   end
