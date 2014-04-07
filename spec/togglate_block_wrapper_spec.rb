@@ -66,6 +66,34 @@ EOS
         expect(wrapper.send(:build_chunks).to_a).to eq exp
       end
     end
+
+    context "with 4 spaces code blocks" do
+      it "wraps them as target blocks" do
+        text =<<-EOS
+#title
+
+    tell application 'Foo'
+
+      beep
+
+    end tell
+
+  line
+EOS
+
+        wrapper = Togglate::BlockWrapper.new(text)
+        exp = [[false, ["#title\n"]],
+               [true,  ["\n"]],
+               [false, ["    tell application 'Foo'\n",
+                        "\n",
+                        "      beep\n",
+                        "\n",
+                        "    end tell\n",
+                        "\n"]],
+                [true,  ["  line\n"]]]
+        expect(wrapper.send(:build_chunks).to_a).to eq exp
+      end
+    end
   end
 
   describe "#wrap_chunks" do
