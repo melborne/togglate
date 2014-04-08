@@ -33,7 +33,7 @@ class Togglate::BlockWrapper
         if blank_line?(line)
          true
         else
-        :alone  # line just after 4 indent block marked :alone
+        :_alone  # line just after 4 indent block marked :_alone
         end
       else
         blank_line?(line) && !in_block && !in_indent
@@ -66,12 +66,12 @@ class Togglate::BlockWrapper
   end
 
   def wrap_chunks(chunks)
-    # a line just after 4 indent block(marked :alone) is
+    # a line just after 4 indent block(marked :_alone) is
     # saved to local var 'reserve', then it is merged with
     # next lines or wrapped solely depend the type of next lines
     reserve = nil
     wrap_lines = chunks.inject([]) do |m, (is_blank_line, lines)|
-      next m.tap { reserve = lines } if is_blank_line == :alone
+      next m.tap { reserve = lines } if is_blank_line == :_alone
 
       if is_blank_line || exception_block?(lines.first)
         if reserve

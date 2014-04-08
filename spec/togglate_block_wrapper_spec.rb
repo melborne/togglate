@@ -90,7 +90,7 @@ EOS
                         "\n",
                         "    end tell\n",
                         "\n"]],
-               [:alone,  ["  line\n"]]]
+               [:_alone,  ["  line\n"]]]
         expect(wrapper.send(:build_chunks).to_a).to eq exp
       end
     end
