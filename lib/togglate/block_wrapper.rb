@@ -9,13 +9,17 @@ class Togglate::BlockWrapper
     @text = text
     @wrapper = wrapper
     @pretext = pretext
-    @wrap_exceptions = wrap_exceptions
     @translate = set_translate_opt(opts[:translate])
     @timeout = opts.fetch(:timeout, 5)
     @email = opts[:email]
+    @blank_line_re = /^\s*$/
     @indent_re = /^\s{4,}\S/
-    self_closing_tags = %w(img br hr !--).join('|')
-    @html_tag_re = /^<(?!#{self_closing_tags}).+>\s*$/
+    @block_tags = {
+      fenced: /^```/,
+      liquid: /^{%/,
+      html: /^<(?!img|br|hr|!--).+>\s*$/
+    }
+    @wrap_exceptions = wrap_exceptions.map { |key| @block_tags[key] }
   end
 
   def run
@@ -43,8 +47,8 @@ class Togglate::BlockWrapper
     end
   end
 
-  def blank_line?(line, blank_line_re:/^\s*$/)
-    !line.match(blank_line_re).nil?
+  def blank_line?(line)
+    !line.match(@blank_line_re).nil?
   end
 
   def true_to_false?(prev, curr)
@@ -52,8 +56,8 @@ class Togglate::BlockWrapper
     [prev, curr] == [true, false]
   end
 
-  def in_block?(line, in_block, block_tags:[/^```/, /^{%/, @html_tag_re])
-    return !in_block if block_tags.any? { |ex| line.match ex }
+  def in_block?(line, in_block)
+    return !in_block if @block_tags.any? { |_, ex| line.match ex }
     in_block
   end
 
