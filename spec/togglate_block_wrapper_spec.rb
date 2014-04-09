@@ -94,6 +94,56 @@ EOS
         expect(wrapper.send(:build_chunks).to_a).to eq exp
       end
     end
+
+    context "with html tag blocks" do
+      it "wraps them as target blocks" do
+        text =<<-EOS
+#title
+
+<table>
+  <tr><th>Header</th></tr>
+
+  <tr><td>Data</td></tr>
+</table>
+EOS
+
+        wrapper = Togglate::BlockWrapper.new(text)
+        exp = [[false, ["#title\n"]],
+               [true,  ["\n"]],
+               [false, ["<table>\n",
+                        "  <tr><th>Header</th></tr>\n",
+                        "\n",
+                        "  <tr><td>Data</td></tr>\n",
+                        "</table>\n"]]]
+        expect(wrapper.send(:build_chunks).to_a).to eq exp
+      end
+
+      it "wraps self-closing tags as target blocks" do
+        text =<<-EOS
+#title
+
+<!-- comment -->
+
+<br />
+
+<img src="img.png" />
+
+<hr />
+EOS
+
+        wrapper = Togglate::BlockWrapper.new(text)
+        exp = [[false, ["#title\n"]],
+               [true,  ["\n"]],
+               [false, ["<!-- comment -->\n"]],
+               [true,  ["\n"]],
+               [false, ["<br />\n"]],
+               [true,  ["\n"]],
+               [false, ["<img src=\"img.png\" />\n"]],
+               [true,  ["\n"]],
+               [false, ["<hr />\n"]]]
+        expect(wrapper.send(:build_chunks).to_a).to eq exp
+      end
+    end
   end
 
   describe "#wrap_chunks" do

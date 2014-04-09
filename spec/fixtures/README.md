@@ -11,3 +11,9 @@ def hello
   puts :hello
 end
 ```
+
+<table>
+  <tr><th>Header</th></tr>
+
+  <tr><td>Data</td></tr>
+</table>

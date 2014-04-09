@@ -12,7 +12,9 @@ module Togglate
     def create(file)
       text = File.read(file)
       opts = symbolize_keys(options)
-      blocks = [/^```/, /^{%/]
+      self_closing_tags = %w(img br hr !--).join('|')
+      html_tag_re = /^<(?!#{self_closing_tags}).+>\s*$/
+      blocks = [/^```/, /^{%/, html_tag_re]
       opts.update(wrap_exceptions:blocks) if opts[:code_block]
       opts.update(translate:nil) if opts[:translate].empty?
       puts Togglate.create(text, opts)

@@ -14,6 +14,8 @@ class Togglate::BlockWrapper
     @timeout = opts.fetch(:timeout, 5)
     @email = opts[:email]
     @indent_re = /^\s{4,}\S/
+    self_closing_tags = %w(img br hr !--).join('|')
+    @html_tag_re = /^<(?!#{self_closing_tags}).+>\s*$/
   end
 
   def run
@@ -50,7 +52,7 @@ class Togglate::BlockWrapper
     [prev, curr] == [true, false]
   end
 
-  def in_block?(line, in_block, block_tags:[/^```/, /^{%/])
+  def in_block?(line, in_block, block_tags:[/^```/, /^{%/, @html_tag_re])
     return !in_block if block_tags.any? { |ex| line.match ex }
     in_block
   end
