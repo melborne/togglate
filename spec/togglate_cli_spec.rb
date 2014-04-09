@@ -32,14 +32,13 @@ describe Togglate::CLI do
       context "set code-block option to true" do
         it "not wraps fenced and indented code blocks" do
           Togglate::CLI.start(['create', 'README.md', '--code-block'])
-          expect($stdout.string).to match(/^\n {4}% ruby title\.rb\n$/)
-          expect($stdout.string).to match(/^\n```ruby.*```\n$/m)
+          expect($stdout.string).to match(/\n\n {4}% ruby.*\n\n/m)
+          expect($stdout.string).to match(/\n\n```ruby.*```\n\n/m)
         end
 
         it "not wraps html tags" do
           Togglate::CLI.start(['create', 'README.md', '--code-block'])
-          exp = /^<!--original\n<.+>.*\n^<.+>\n-->$/m
-          expect($stdout.string).not_to match(exp)
+          expect($stdout.string).to match(/\n\n<table>.*<\/table>\n\n/m)
         end
       end
     end
