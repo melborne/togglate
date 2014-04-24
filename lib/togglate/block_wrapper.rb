@@ -28,22 +28,39 @@ class Togglate::BlockWrapper
 
   private
   def build_chunks
-    in_block = false
-    in_indent = false
-    @text.each_line.chunk do |line|
-      in_block = in_block?(line, in_block)
-      prev_indent = in_indent
-      in_indent = in_indented_block?(line, in_indent, in_block)
+    pre_wrap_for(:html) do |text|
+      in_block = false
+      in_indent = false
+      chunks = text.each_line.chunk do |line|
+        in_block = in_block?(line, in_block)
+        prev_indent = in_indent
+        in_indent = in_indented_block?(line, in_indent, in_block)
 
-      if true_to_false?(prev_indent, in_indent)
-        if blank_line?(line)
-         true
+        if true_to_false?(prev_indent, in_indent)
+          if blank_line?(line)
+           true
+          else
+          :_alone  # line just after 4 indent block marked :_alone
+          end
         else
-        :_alone  # line just after 4 indent block marked :_alone
+          blank_line?(line) && !in_block && !in_indent
         end
-      else
-        blank_line?(line) && !in_block && !in_indent
       end
+    end
+  end
+
+  def pre_wrap_for(*targets, tag:"__TEMP-WRAPPER-TAG__")
+    target_re = { html: /^<(\w+)>\n.*?^<\/\1>\n/m }
+    text =
+      targets.inject(@text) do |txt, target|
+        txt.gsub(target_re[target]) { "```#{tag}\n#{$&}```\n" }
+      end
+    chunks = yield(text)
+    chunks.map do |k, lines|
+      if lines.first.match(/^```#{tag}/)
+        lines = lines[1..-2]
+      end
+      [k, lines]
     end
   end
 
@@ -57,7 +74,8 @@ class Togglate::BlockWrapper
   end
 
   def in_block?(line, in_block)
-    return !in_block if @block_tags.any? { |_, ex| line.match ex }
+    block_tags = @block_tags.reject { |tag, ex| tag==:html }
+    return !in_block if block_tags.any? { |_, ex| line.match ex }
     in_block
   end
 
