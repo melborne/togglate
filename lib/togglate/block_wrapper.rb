@@ -37,9 +37,9 @@ class Togglate::BlockWrapper
 
         if true_to_false?(prev_indent, in_indent)
           if blank_line?(line)
-           true
+            true
           else
-          :_alone  # line just after 4 indent block marked :_alone
+            :_alone  # line just after 4 indent block marked :_alone
           end
         else
           blank_line?(line) && !in_block && !in_indent
@@ -48,17 +48,21 @@ class Togglate::BlockWrapper
     end
   end
 
-  def pre_wrap_for(*targets, tag:"__TEMP-WRAPPER-TAG__")
-    target_re = { html: /^<(\w+)>\n.*?^<\/\1>\n/m }
+  def pre_wrap_for(*targets, tag:"```__TEMP-WRAPPER-TAG__\n")
+    # Wrap targets blocks with a pair of fenced blocks once before
+    # chunking text, then remove the pair after the chunking.
+    #
+    # NOTE: I have tried to include 'four indented blocks' here,
+    #       but abandoned. Because it was complicated to handle
+    #       indented lines inside of html tag blocks.
+    target_re = { html: /^<(\w+)\s*.*?>\n.*?^<\/\1>\n/m }
     text =
       targets.inject(@text) do |txt, target|
-        txt.gsub(target_re[target]) { "```#{tag}\n#{$&}```\n" }
+        txt.gsub(target_re[target]) { "#{tag}#{$&}#{tag}" }
       end
     chunks = yield(text)
     chunks.map do |k, lines|
-      if lines.first.match(/^```#{tag}/)
-        lines = lines[1..-2]
-      end
+      lines = lines[1..-2] if lines.first.match(/#{tag}/)
       [k, lines]
     end
   end
