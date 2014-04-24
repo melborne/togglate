@@ -36,9 +36,9 @@ describe Togglate::CLI do
           expect($stdout.string).to match(/\n\n```ruby.*```\n\n/m)
         end
 
-        it "not wraps html tags" do
+        it "wraps html tags" do
           Togglate::CLI.start(['create', 'README.md', '--code-block'])
-          expect($stdout.string).to match(/\n\n<table>.*<\/table>\n\n/m)
+          expect($stdout.string).to match(/<!--original.*<table>.*<\/table>\n-->/m)
         end
       end
     end

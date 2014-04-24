@@ -16,8 +16,7 @@ class Togglate::BlockWrapper
     @indent_re = /^\s{4,}\S/
     @block_tags = {
       fenced: /^```/,
-      liquid: /^{%/,
-      html: /^<(?!img|br|hr|!--).+>\s*$/
+      liquid: /^{%/
     }
     @wrap_exceptions = wrap_exceptions.map { |key| @block_tags[key] }
   end
@@ -74,8 +73,7 @@ class Togglate::BlockWrapper
   end
 
   def in_block?(line, in_block)
-    block_tags = @block_tags.reject { |tag, ex| tag==:html }
-    return !in_block if block_tags.any? { |_, ex| line.match ex }
+    return !in_block if @block_tags.any? { |_, ex| line.match ex }
     in_block
   end
 

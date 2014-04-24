@@ -12,7 +12,7 @@ module Togglate
     def create(file)
       text = File.read(file)
       opts = symbolize_keys(options)
-      blocks = %i(fenced liquid html)
+      blocks = %i(fenced liquid)
       opts.update(wrap_exceptions:blocks) if opts[:code_block]
       opts.update(translate:nil) if opts[:translate].empty?
       puts Togglate.create(text, opts)
