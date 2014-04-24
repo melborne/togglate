@@ -3,10 +3,12 @@ require 'togglate'
 require "stringio"
 require "fakeweb"
 
-class String
-  def ~
-    margin = scan(/^ +/).map(&:size).min
-    gsub(/^ {#{margin}}/, '')
+module StringExt
+  refine String do
+    def ~
+      margin = scan(/^ +/).map(&:size).min
+      gsub(/^ {#{margin}}/, '')
+    end
   end
 end
 

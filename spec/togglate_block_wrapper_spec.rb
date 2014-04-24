@@ -1,4 +1,5 @@
 require 'spec_helper'
+using StringExt
 
 describe Togglate::BlockWrapper do
   before do
@@ -16,18 +17,17 @@ describe Togglate::BlockWrapper do
 
     context "with liquid tags" do
       it "wraps liquid tag blocks as target blocks" do
-        text =<<-EOS
-#title
+        text = ~<<-EOS
+        #title
 
-text
+        text
 
-{% highlight bash %}
-bash code
+        {% highlight bash %}
+        bash code
 
-here
-{% endhighlight %}
-EOS
-
+        here
+        {% endhighlight %}
+        EOS
         wrapper = Togglate::BlockWrapper.new(text)
         exp = [[false, ["#title\n"]],
                [true,  ["\n"]],
@@ -44,17 +44,17 @@ EOS
 
     context "with fenced code blocks" do
       it "wraps fenced code blocks as target blocks" do
-        text = <<-EOS
-# title
+        text = ~<<-EOS
+        # title
 
-text
+        text
 
-``` ruby
-puts 'Hello'
+        ``` ruby
+        puts 'Hello'
 
-p :World
-```
-EOS
+        p :World
+        ```
+        EOS
         wrapper = Togglate::BlockWrapper.new(text)
         exp = [
           [false, ["# title\n"]],
@@ -69,18 +69,17 @@ EOS
 
     context "with 4 indented code blocks" do
       it "wraps them as target blocks" do
-        text =<<-EOS
-#title
+        text = ~<<-EOS
+        #title
 
-    tell application 'Foo'
+            tell application 'Foo'
 
-      beep
+              beep
 
-    end tell
+            end tell
 
-  line
-EOS
-
+          line
+        EOS
         wrapper = Togglate::BlockWrapper.new(text)
         exp = [[false, ["#title\n"]],
                [true,  ["\n"]],
@@ -97,16 +96,15 @@ EOS
 
     context "with html tag blocks" do
       it "wraps them as target blocks" do
-        text =<<-EOS
-#title
+        text = ~<<-EOS
+        #title
 
-<table>
-  <tr><th>Header</th></tr>
+        <table>
+          <tr><th>Header</th></tr>
 
-  <tr><td>Data</td></tr>
-</table>
-EOS
-
+          <tr><td>Data</td></tr>
+        </table>
+        EOS
         wrapper = Togglate::BlockWrapper.new(text)
         exp = [[false, ["#title\n"]],
                [true,  ["\n"]],
@@ -119,18 +117,17 @@ EOS
       end
 
       it "wraps irregularly indented tags" do
-        text =<<-EOS
-#title
+        text = ~<<-EOS
+        #title
 
-<table>
-<tr><th>Header</th></tr>
+        <table>
+        <tr><th>Header</th></tr>
 
-<tr><td>Data</td></tr>
-</table>
+        <tr><td>Data</td></tr>
+        </table>
 
-sentence
-EOS
-
+        sentence
+        EOS
         wrapper = Togglate::BlockWrapper.new(text)
         exp = [[false, ["#title\n"]],
                [true,  ["\n"]],
@@ -145,16 +142,15 @@ EOS
       end
 
       it "wraps html block which includes 4 or more indented parts" do
-        text =<<-EOS
-<table>
-  <tr>
-    <th>
-      Header
-    </th>
-  </tr>
-</table>
-EOS
-
+        text = ~<<-EOS
+        <table>
+          <tr>
+            <th>
+              Header
+            </th>
+          </tr>
+        </table>
+        EOS
         wrapper = Togglate::BlockWrapper.new(text)
         exp = [[false, ["<table>\n",
                         "  <tr>\n",
@@ -167,18 +163,17 @@ EOS
       end
 
       it "wraps self-closing tags as target blocks" do
-        text =<<-EOS
-#title
+        text = ~<<-EOS
+        #title
 
-<!-- comment -->
+        <!-- comment -->
 
-<br />
+        <br />
 
-<img src="img.png" />
+        <img src="img.png" />
 
-<hr />
-EOS
-
+        <hr />
+        EOS
         wrapper = Togglate::BlockWrapper.new(text)
         exp = [[false, ["#title\n"]],
                [true,  ["\n"]],
@@ -196,29 +191,29 @@ EOS
 
   describe "#wrap_chunks" do
     before do
-      @text =<<-EOS
-#title
+      @text = ~<<-EOS
+      #title
 
-text
-EOS
+      text
+      EOS
     end
 
     it "returns wrapped text" do
       wrapper = Togglate::BlockWrapper.new(@text)
       chunks = wrapper.send(:build_chunks)
-      exp =<<-EOS
-[translation here]
+      exp = ~<<-EOS
+      [translation here]
 
-<!--original
-#title
--->
+      <!--original
+      #title
+      -->
 
-[translation here]
+      [translation here]
 
-<!--original
-text
--->
-EOS
+      <!--original
+      text
+      -->
+      EOS
       expect(wrapper.send(:wrap_chunks, chunks)).to eq exp
     end
 
@@ -233,78 +228,78 @@ EOS
 
     context "text has 4 indented code blocks" do
       it "wraps sentences after the code blocks correctly" do
-        text =<<-EOS
-#title
+        text = ~<<-EOS
+        #title
 
-    % echo hello
+            % echo hello
 
-line
-line2
-EOS
+        line
+        line2
+        EOS
         wrapper = Togglate::BlockWrapper.new(text)
         chunks = wrapper.send(:build_chunks)
-        exp =<<-EOS
-[translation here]
+        exp = ~<<-EOS
+        [translation here]
 
-<!--original
-#title
--->
+        <!--original
+        #title
+        -->
 
-[translation here]
+        [translation here]
 
-<!--original
-    % echo hello
+        <!--original
+            % echo hello
 
--->
+        -->
 
-[translation here]
+        [translation here]
 
-<!--original
-line
-line2
--->
-EOS
+        <!--original
+        line
+        line2
+        -->
+        EOS
         expect(wrapper.send(:wrap_chunks, chunks)).to eq exp
       end
 
       it "wraps sentences after the code blocks correctly 2" do
-        text =<<-EOS
-#title
+        text = ~<<-EOS
+        #title
 
-    % echo hello
+            % echo hello
 
-line
+        line
 
-line2
-EOS
+        line2
+        EOS
         wrapper = Togglate::BlockWrapper.new(text)
         chunks = wrapper.send(:build_chunks)
-        exp =<<-EOS
-[translation here]
+        exp = ~<<-EOS
+        [translation here]
 
-<!--original
-#title
--->
+        <!--original
+        #title
+        -->
 
-[translation here]
+        [translation here]
 
-<!--original
-    % echo hello
+        <!--original
+            % echo hello
 
--->
+        -->
 
-[translation here]
+        [translation here]
 
-<!--original
-line
--->
+        <!--original
+        line
+        -->
 
-[translation here]
+        [translation here]
 
-<!--original
-line2
--->
-EOS
+        <!--original
+        line2
+        -->
+        EOS
         expect(wrapper.send(:wrap_chunks, chunks)).to eq exp
       end
     end
