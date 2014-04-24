@@ -28,24 +28,32 @@ class Togglate::BlockWrapper
 
   private
   def build_chunks
-    pre_wrap_for(:html, :indent) do |text|
+    pre_wrap_for(:html) do |text|
       in_block = false
+      in_indent = false
       chunks = text.each_line.chunk do |line|
         in_block = in_block?(line, in_block)
-        blank_line?(line) && !in_block
+        prev_indent = in_indent
+        in_indent = in_indented_block?(line, in_indent, in_block)
+
+        if true_to_false?(prev_indent, in_indent)
+          if blank_line?(line)
+           true
+          else
+          :_alone  # line just after 4 indent block marked :_alone
+          end
+        else
+          blank_line?(line) && !in_block && !in_indent
+        end
       end
     end
   end
 
   def pre_wrap_for(*targets, tag:"__TEMP-WRAPPER-TAG__")
-    target_re = { html: /^<(\w+)>\n.*?^<\/\1>\n/m,
-                  indent: /^ {4,}\S.*?(?=^ {,3}\S)/m }
+    target_re = { html: /^<(\w+)>\n.*?^<\/\1>\n/m }
     text =
       targets.inject(@text) do |txt, target|
-        txt.gsub(target_re[target]) do
-          cr = target==:indent ? "\n" : ""
-          "```#{tag}\n#{$&}```\n#{cr}"
-        end
+        txt.gsub(target_re[target]) { "```#{tag}\n#{$&}```\n" }
       end
     chunks = yield(text)
     chunks.map do |k, lines|
@@ -60,19 +68,49 @@ class Togglate::BlockWrapper
     !line.match(@blank_line_re).nil?
   end
 
+  def true_to_false?(prev, curr)
+    # this captures the in-out state transition on 4 indent block.
+    [prev, curr] == [true, false]
+  end
+
   def in_block?(line, in_block)
     block_tags = @block_tags.reject { |tag, ex| tag==:html }
     return !in_block if block_tags.any? { |_, ex| line.match ex }
     in_block
   end
 
+  def in_indented_block?(line, status, in_block)
+    return false if in_block
+    if !status && line.match(@indent_re) ||
+        status && line.match(/^\s{,3}\S/)
+      !status
+    else
+      status
+    end
+  end
+
   def wrap_chunks(chunks)
+    # a line just after 4 indent block(marked :_alone) is
+    # saved to local var 'reserve', then it is merged with
+    # next lines or wrapped solely depend the type of next lines
+    reserve = nil
     wrap_lines = chunks.inject([]) do |m, (is_blank_line, lines)|
+      next m.tap { reserve = lines } if is_blank_line == :_alone
+
       if is_blank_line || exception_block?(lines.first)
+        if reserve
+          m.push "\n"
+          m.push *wrapped_block(reserve)
+        end
         m.push *lines
       else
+        if reserve
+          m.push "\n"
+          lines = reserve + lines
+        end
         m.push *wrapped_block(lines)
       end
+      m.tap { reserve = nil }
     end
     @translate ? hash_to_translation(wrap_lines).join : wrap_lines.join
   end
