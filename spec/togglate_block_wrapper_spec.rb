@@ -144,6 +144,28 @@ EOS
         expect(wrapper.send(:build_chunks).to_a).to eq exp
       end
 
+      it "wraps html block which includes 4 or more indented parts" do
+        text =<<-EOS
+<table>
+  <tr>
+    <th>
+      Header
+    </th>
+  </tr>
+</table>
+EOS
+
+        wrapper = Togglate::BlockWrapper.new(text)
+        exp = [[false, ["<table>\n",
+                        "  <tr>\n",
+                        "    <th>\n",
+                        "      Header\n",
+                        "    </th>\n",
+                        "  </tr>\n",
+                        "</table>\n"]]]
+        expect(wrapper.send(:build_chunks).to_a).to eq exp
+      end
+
       it "wraps self-closing tags as target blocks" do
         text =<<-EOS
 #title
