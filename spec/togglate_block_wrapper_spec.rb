@@ -118,6 +118,32 @@ EOS
         expect(wrapper.send(:build_chunks).to_a).to eq exp
       end
 
+      it "wraps irregularly indented tags" do
+        text =<<-EOS
+#title
+
+<table>
+<tr><th>Header</th></tr>
+
+<tr><td>Data</td></tr>
+</table>
+
+sentence
+EOS
+
+        wrapper = Togglate::BlockWrapper.new(text)
+        exp = [[false, ["#title\n"]],
+               [true,  ["\n"]],
+               [false, ["<table>\n",
+                        "<tr><th>Header</th></tr>\n",
+                        "\n",
+                        "<tr><td>Data</td></tr>\n",
+                        "</table>\n"]],
+               [true, ["\n"]],
+               [false, ["sentence\n"]]]
+        expect(wrapper.send(:build_chunks).to_a).to eq exp
+      end
+
       it "wraps self-closing tags as target blocks" do
         text =<<-EOS
 #title
