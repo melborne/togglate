@@ -11,7 +11,6 @@ class Togglate::BlockWrapper
     @pretext = pretext
     @translator = Togglate::Translator.new(opts[:translate]) if opts[:translate]
     @timeout = opts.fetch(:timeout, 5)
-    @email = opts[:email]
     @blank_line_re = /^\s*$/
     @indent_re = /^\s{4,}\S/
     @block_tags = {
@@ -157,7 +156,6 @@ class Togglate::BlockWrapper
   end
 
   def request_translation
-    @translator.email = @email if @email
     res = {}
     thread_with(sentences_to_translate) do |k, text|
       begin

@@ -3,10 +3,6 @@ module MymemoryAdapter
     ::Mymemory.translate(text, opts)
   end
 
-  def email=(email)
-    ::Mymemory.config.email = email
-  end
-
   def opts
     opt_parse(@opts)
   end
@@ -14,7 +10,12 @@ module MymemoryAdapter
   private
   def opt_parse(opts)
     case opts
-    when Hash, FalseClass, NilClass
+    when Hash
+      if email = opts.delete(:email)
+        ::Mymemory.config.email = email
+      end
+      opts
+    when FalseClass, NilClass
       opts
     when TrueClass
       {to: :ja}
