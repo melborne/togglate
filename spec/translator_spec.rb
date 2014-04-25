@@ -18,7 +18,7 @@ describe Togglate::Translator do
     end
   end
 
-  describe ".translate" do
+  describe "#translate" do
     before do
       opt = {from: :en, to: :ja}
       @translator = translator.new(opt)
