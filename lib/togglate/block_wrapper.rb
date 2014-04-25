@@ -9,7 +9,7 @@ class Togglate::BlockWrapper
     @text = text
     @wrapper = wrapper
     @pretext = pretext
-    @translate = set_translate_opt(opts[:translate])
+    @translator = Togglate::Translator.new(opts[:translate]) if opts[:translate]
     @timeout = opts.fetch(:timeout, 5)
     @email = opts[:email]
     @blank_line_re = /^\s*$/
@@ -114,7 +114,7 @@ class Togglate::BlockWrapper
       end
       m.tap { reserve = nil }
     end
-    @translate ? hash_to_translation(wrap_lines).join : wrap_lines.join
+    @translator ? hash_to_translation(wrap_lines).join : wrap_lines.join
   end
 
   def wrapped_block(contents)
@@ -138,23 +138,12 @@ class Togglate::BlockWrapper
   end
 
   def pretext(lines)
-    if @translate
+    if @translator
       hash_value = lines.join.hash
       sentences_to_translate[hash_value] = lines.join
       hash_value
     else
       @pretext
-    end
-  end
-
-  def set_translate_opt(opt)
-    case opt
-    when Hash, FalseClass, NilClass
-      opt
-    when TrueClass
-      {to: :ja}
-    else
-      raise ArgumentError
     end
   end
 
@@ -168,11 +157,11 @@ class Togglate::BlockWrapper
   end
 
   def request_translation
-    Mymemory.config.email = @email if @email
+    @translator.email = @email if @email
     res = {}
     thread_with(sentences_to_translate) do |k, text|
       begin
-        timeout(@timeout) { res[k] = ::Mymemory.translate(text, @translate) }
+        timeout(@timeout) { res[k] = @translator.translate(text) }
       rescue Timeout::Error
         res[k] = @pretext
       end

@@ -306,20 +306,6 @@ describe Togglate::BlockWrapper do
   end
 
   describe "Embed results of MyMemory translation service" do
-    describe ".new with translate option" do
-      it "sets en-ja option when passed true" do
-        wrapper = Togglate::BlockWrapper.new('I need you.', translate:true)
-        opt = {to: :ja}
-        expect(wrapper.instance_variable_get('@translate')).to eq opt
-      end
-
-      it "sets passed options" do
-        opt = {from: :en, to: :it, email:true}
-        wrapper = Togglate::BlockWrapper.new('I need you.', translate:opt)
-        expect(wrapper.instance_variable_get('@translate')).to eq opt
-      end
-    end
-
     describe "#wrap_chunks" do
       it "sets translated sentences to pretext" do
         text = "#Title\n\nProgramming is fun.\n"

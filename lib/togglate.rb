@@ -1,8 +1,9 @@
-require "mymemory"
-
 require "togglate/version"
 require "togglate/block_wrapper"
 require "togglate/cli"
+require "togglate/translator"
+
+autoload :Mymemory, "mymemory"
 
 module Togglate
   class << self
